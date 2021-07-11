@@ -11,6 +11,9 @@ const Home = () => {
     auth.signInWithRedirect(provider);
   }, []);
   const signOut = useCallback(() => auth.signOut(), []);
+  const deleteUser = useCallback(() => {
+    if (currentUser !== 'loading' && currentUser !== null) currentUser.delete();
+  }, [currentUser]);
   if (currentUser === 'loading') {
     return (
       <>
@@ -18,18 +21,20 @@ const Home = () => {
         loading
       </>
     );
-  } else if (currentUser) {
+  } else if (currentUser === null) {
     return (
       <>
-        {console.log('Render sign out.')}
-        <button onClick={signOut}>ログアウト</button>
+        {console.log('Render sign in.')}
+        <button onClick={signInWithGoogle}>ログイン</button>
+        <button onClick={signInWithGoogle}>アカウントを作成</button>
       </>
     );
   } else {
     return (
       <>
-        {console.log('Render sign in.')}
-        <button onClick={signInWithGoogle}>ログイン</button>
+        {console.log('Render sign out.')}
+        <button onClick={signOut}>ログアウト</button>
+        <button onClick={deleteUser}>アカウントを削除</button>
       </>
     );
   }
