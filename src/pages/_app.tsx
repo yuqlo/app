@@ -3,7 +3,7 @@ import type { AppProps } from 'next/app';
 import firebase from 'firebase/app';
 import { useEffect, useState } from 'react';
 import { AuthContext } from 'src/authContext';
-import { auth } from 'src/firebase';
+import { auth, db } from 'src/firebase';
 
 const MyApp = (props: AppProps) => {
   console.log('Render my app.');
@@ -13,7 +13,25 @@ const MyApp = (props: AppProps) => {
   useEffect(() => {
     console.log('Render my app 3.');
     auth.onAuthStateChanged((user) => {
-      user ? setCurrentUser(user) : setCurrentUser(null);
+      if (user) {
+        auth.getRedirectResult().then((result) => {
+          if (result.additionalUserInfo?.isNewUser) {
+            const uid = result.user?.uid;
+            const initialData = {
+              initialData: {
+                createdAt: firebase.firestore.Timestamp.now(),
+                email: result.user?.email,
+              },
+            };
+            db.collection('users').doc(uid).set(initialData);
+            setCurrentUser(user);
+          } else {
+            setCurrentUser(user);
+          }
+        });
+      } else {
+        setCurrentUser(null);
+      }
     });
   }, []);
   return (

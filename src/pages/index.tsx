@@ -1,7 +1,7 @@
 import firebase from 'firebase/app';
 import { useCallback, useContext } from 'react';
 import { AuthContext } from 'src/authContext';
-import { auth } from 'src/firebase';
+import { auth, db } from 'src/firebase';
 
 const Home = () => {
   console.log('Render home.');
@@ -12,7 +12,12 @@ const Home = () => {
   }, []);
   const signOut = useCallback(() => auth.signOut(), []);
   const deleteUser = useCallback(() => {
-    if (currentUser !== 'loading' && currentUser !== null) currentUser.delete();
+    if (currentUser !== 'loading' && currentUser !== null) {
+      db.collection('users')
+        .doc(currentUser.uid)
+        .delete()
+        .then(() => currentUser.delete());
+    }
   }, [currentUser]);
   if (currentUser === 'loading') {
     return (
